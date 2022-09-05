@@ -34,4 +34,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Output scan results
-        run: cat /tmp/scan.json
+        id: scan-results
+        run: |
+          RESULTS_COUNT="$(jq -r '[.Results[]?.Vulnerabilities[]?.VulnerabilityID] | sort | unique | length' /tmp/scan.json)"
+          echo "::set-output name=results-count::${RESULTS_COUNT}"
