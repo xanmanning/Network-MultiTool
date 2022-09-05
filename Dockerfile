@@ -1,4 +1,17 @@
-FROM alpine:3.16
+FROM golang:1.19-alpine AS builder-usql
+
+ARG INSTALL_EXTRAS=false
+
+RUN if [ "${INSTALL_EXTRAS}" == "true" ] ; then \
+        apk add --no-cache \
+            gcc \
+            musl-dev \
+            && \
+        go install -tags most github.com/xo/usql@latest \
+        ; \
+    fi
+
+FROM alpine:3.16 AS release
 
 ARG INSTALL_EXTRAS=false
 ARG INSTALL_ADDITIONAL_SHELL="bash"
@@ -25,17 +38,16 @@ RUN apk update --no-cache && \
     if [ "${INSTALL_EXTRAS}" == "true" ] ; then \
         apk add --no-cache \
             apache2-utils \
+            dasel \
             ethtool \
             git \
             iperf3 \
             lftp \
             mtr \
-            mysql-client \
             netcat-openbsd \
             nmap \
             nmap-scripts \
             openssh-client \
-            postgresql-client \
             rsync \
             socat \
             tshark \
@@ -44,5 +56,7 @@ RUN apk update --no-cache && \
             ${INSTALL_ADDITIONAL_SHELL} \
             ; \
     fi
+
+COPY --from=builder-usql /go/bin/usql /usr/bin/usql
 
 CMD ["sleep", "infinity"]

@@ -3,6 +3,12 @@
 A (**multi-arch**) multitool for container/network testing and troubleshooting.
 The main container image is based on Alpine Linux and contains lots of tools.
 
+## Why this image?
+
+Whilst much the same to WBITT's image, this one is a little bit more
+opinionated as to which tools should be included. This image is also scanned
+weekly with Trivy and rebuilt if there are vulnerabilities found.
+
 ## Supported platforms:
 
 - linux/386
@@ -46,7 +52,7 @@ All tools from "minimal", plus:
 - ssh client, lftp client, rsync, scp
 - netcat (nc), socat
 - ApacheBench (ab)
-- mysql & postgresql client
+- database client (usql)
 - git
 
 # How to use this image?
