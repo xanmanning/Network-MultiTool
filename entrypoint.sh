@@ -14,20 +14,20 @@ if [ -z "${MOUNT_CHECK}" ] ; then
 
   # CONTAINER_IP=$(ip addr show eth0 | grep -w inet| awk '{print $2}')
   # Note:
-  #   CONTAINER IP cannot always be on device 'eth0'. 
+  #   CONTAINER IP cannot always be on device 'eth0'.
   #     It could be something else too, as pointed by @arnaudveron .
-  #   The 'ip -j route' shows JSON output, 
+  #   The 'ip -j route' shows JSON output,
   #     and always shows the default route as the first entry.
-  #     It also shows the correct device name as 'prefsrc', with correct IP address. 
+  #     It also shows the correct device name as 'prefsrc', with correct IP address.
   CONTAINER_IP=$(ip -j route get 1 | jq -r '.[0] .prefsrc')
 
   # Reduced the information in just one line. It overwrites the default text.
-  echo -e "WBITT Network MultiTool (with NGINX) - ${HOSTNAME} - ${CONTAINER_IP} - HTTP: ${HTTP_PORT:-80} , HTTPS: ${HTTPS_PORT:-443} . (Formerly praqma/network-multitool)" | tee  ${WEB_ROOT}/index.html 
+  echo -e "Xan Manning's Network MultiTool (with NGINX) - ${HOSTNAME} - ${CONTAINER_IP} - HTTP: ${HTTP_PORT:-80} , HTTPS: ${HTTPS_PORT:-443} . (Based on wbitt/network-multitool)" | tee  ${WEB_ROOT}/index.html
 else
   echo "The directory ${WEB_ROOT} is a volume mount."
   echo "Therefore, will not over-write index.html"
   echo "Only logging the container characteristics:"
-  echo -e "WBITT Network MultiTool (with NGINX) - ${HOSTNAME} - ${CONTAINER_IP} - HTTP: ${HTTP_PORT:-80} , HTTPS: ${HTTPS_PORT:-443} . (Formerly praqma/network-multitool)"
+  echo -e "Xan Manning's Network MultiTool (with NGINX) - ${HOSTNAME} - ${CONTAINER_IP} - HTTP: ${HTTP_PORT:-80} , HTTPS: ${HTTPS_PORT:-443} . (Based on wbitt/network-multitool)"
 
 fi
 
@@ -50,4 +50,3 @@ fi
 
 # Execute the command specified as CMD in Dockerfile:
 exec "$@"
-

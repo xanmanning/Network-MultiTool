@@ -1,13 +1,11 @@
-FROM alpine:3.15
-
-MAINTAINER Kamran Azeem & Henrik Høegh (kamranazeem@gmail.com, henrikrhoegh@gmail.com)
+FROM alpine:3.16
 
 EXPOSE 80 443 1180 11443
 
 # Install some tools in the container and generate self-signed SSL certificates.
 # Packages are listed in alphabetical order, for ease of readability and ease of maintenance.
-RUN     apk update \
-    &&  apk add bash bind-tools busybox-extras curl \
+RUN     apk update --no-cache \
+    &&  apk add --no-cache bash bind-tools busybox-extras curl \
                 iproute2 iputils jq mtr \
                 net-tools nginx openssl \
                 perl-net-telnet procps tcpdump tcptraceroute wget \
@@ -40,8 +38,8 @@ CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
 
 
 # Note: If you have not included the "bash" package, then it is "mandatory" to add "/bin/sh"
-#         in the ENTNRYPOINT instruction. 
-#       Otherwise you will get strange errors when you try to run the container. 
+#         in the ENTNRYPOINT instruction.
+#       Otherwise you will get strange errors when you try to run the container.
 #       Such as:
 #       standard_init_linux.go:219: exec user process caused: no such file or directory
 
@@ -69,7 +67,7 @@ ENTRYPOINT ["/bin/sh", "/docker/entrypoint.sh"]
 
 # Usage - on Docker:
 # ------------------
-# docker run --rm -it praqma/network-multitool /bin/bash 
+# docker run --rm -it praqma/network-multitool /bin/bash
 # OR
 # docker run -d  praqma/network-multitool
 # OR
