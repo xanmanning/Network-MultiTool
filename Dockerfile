@@ -43,7 +43,6 @@ RUN apk update --no-cache && \
         apk add --no-cache \
             ${INSTALL_ADDITIONAL_SHELL} \
             ; \
-    fi && \
-    mkdir /docker
+    fi
 
 CMD ["sleep", "infinity"]
