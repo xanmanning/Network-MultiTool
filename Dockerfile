@@ -1,14 +1,49 @@
 FROM alpine:3.16
 
-EXPOSE 80 443 1180 11443
+ARG INSTALL_EXTRAS=false
+ARG INSTALL_ADDITIONAL_SHELL="bash"
 
-# Install some tools in the container and generate self-signed SSL certificates.
-# Packages are listed in alphabetical order, for ease of readability and ease of maintenance.
-RUN     apk update --no-cache \
-    &&  apk add --no-cache bash bind-tools busybox-extras curl \
-                iproute2 iputils jq mtr \
-                net-tools nginx openssl \
-                perl-net-telnet procps tcpdump tcptraceroute wget \
-    &&  mkdir /docker
+RUN apk update --no-cache && \
+    # Base Utils
+    apk add --no-cache \
+        bind-tools \
+        busybox-extras \
+        curl \
+        iproute2 \
+        iputils \
+        jq \
+        mtr \
+        net-tools \
+        openssl \
+        perl-net-telnet \
+        procps \
+        tcpdump \
+        tcptraceroute \
+        wget \
+        && \
+    # Extras
+    if [ "${INSTALL_EXTRAS}" == "true" ] ; then \
+        apk add --no-cache \
+            apache2-utils \
+            ethtool \
+            git \
+            iperf3 \
+            lftp \
+            mtr \
+            mysql-client \
+            netcat-openbsd \
+            nmap \
+            nmap-scripts \
+            openssh-client \
+            postgresql-client \
+            rsync \
+            socat \
+            tshark \
+            && \
+        apk add --no-cache \
+            ${INSTALL_ADDITIONAL_SHELL} \
+            ; \
+    fi && \
+    mkdir /docker
 
 CMD ["sleep", "infinity"]
