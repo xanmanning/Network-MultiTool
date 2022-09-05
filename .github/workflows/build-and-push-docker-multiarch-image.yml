@@ -27,7 +27,9 @@ jobs:
 
       - name: Build container image
         run: |
-          docker build -t localhost/${{ env.DOCKER_IMAGE }}:${{ github.sha }} .
+          docker build \
+            --build-arg INSTALL_EXTRAS=true \
+            -t localhost/${{ env.DOCKER_IMAGE }}:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -43,6 +45,12 @@ jobs:
     name: build and push multi-arch container image
     runs-on: ubuntu-latest
     if: github.ref_name == 'main'
+    strategy:
+      fail-fast: false
+      matrix:
+        install_extras:
+          - true
+          - false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -52,18 +60,26 @@ jobs:
         run: |
           SHORT_REF=$(basename ${GITHUB_REF})
           SHORT_HASH=${GITHUB_SHA::7}
+          EXTRAS_SUFFIX=""
           TAGS=""
-          if [[ ! -z "${SHORT_REF}" && "${SHORT_REF}" == "master" ]]; then
-            echo "Found git commit on master branch. Setting docker image tag as: 'latest'"
-            TAG=${DOCKERHUB_ORGNAME}/${DOCKER_IMAGE}:latest
+          if [[ "${{ matrix.install_extras }}" == "true" ]] ; then
+            EXTRAS_SUFFIX="-extras"
           fi
-          if [[ ! -z "${SHORT_REF}" && "${SHORT_REF}" != "master" ]]; then
-            echo "Setting docker image tag as: '${SHORT_REF}'"
-            TAG=${DOCKERHUB_ORGNAME}/${DOCKER_IMAGE}:${SHORT_REF}
+          if [[ -n "${SHORT_REF}" && "${SHORT_REF}" == "main" && -z "${EXTRAS_SUFFIX}" ]] ; then
+            echo "Found git commit on main branch. Setting container image tag as: 'latest'"
+            TAG="${DOCKERHUB_ORGNAME}/${DOCKER_IMAGE}:latest"
+          fi
+          if [[ -n "${SHORT_REF}" && "${SHORT_REF}" == "main" && -n "${EXTRAS_SUFFIX}" ]] ; then
+            echo "Found git commit on main branch. Setting container image tag as: 'extras'"
+            TAG="${DOCKERHUB_ORGNAME}/${DOCKER_IMAGE}:extras"
+          fi
+          if [[ -n "${SHORT_REF}" && "${SHORT_REF}" != "main" ]] ; then
+            echo "Setting container image tag as: '${SHORT_REF}${EXTRAS_SUFFIX}'"
+            TAG="${DOCKERHUB_ORGNAME}/${DOCKER_IMAGE}:${SHORT_REF}${EXTRAS_SUFFIX}"
           fi
           TAGS="${TAG},${DOCKERHUB_ORGNAME}/${DOCKER_IMAGE}:${SHORT_HASH}"
-          echo "Complete Docker image-name and tags are setup as: ${TAGS}"
-          echo ::set-output name=tags::${TAGS}
+          echo "Complete Container image-name and tags are setup as: ${TAGS}"
+          echo "::set-output name=tags::${TAGS}"
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -82,6 +98,8 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
+          build-args: |
+            INSTALL_EXTRAS:${{ matrix.install_extras }}
           platforms: linux/386,linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
           push: true
           tags: ${{ steps.prep.outputs.tags }}
