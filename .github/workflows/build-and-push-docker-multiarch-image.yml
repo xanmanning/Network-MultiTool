@@ -19,8 +19,6 @@ jobs:
   scan:
     name: trivy scan
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ steps.variables.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
