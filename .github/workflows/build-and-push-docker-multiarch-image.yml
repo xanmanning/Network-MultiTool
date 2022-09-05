@@ -42,6 +42,7 @@ jobs:
   build-and-push-multi-arch-container-image:
     name: build and push multi-arch container image
     runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -82,5 +83,5 @@ jobs:
         with:
           context: .
           platforms: linux/386,linux/amd64,linux/arm/v7,linux/arm64,linux/ppc64le,linux/s390x
-          push: ${{ github.ref_name == 'main' }}
+          push: true
           tags: ${{ steps.prep.outputs.tags }}
